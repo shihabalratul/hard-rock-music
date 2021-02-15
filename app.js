@@ -1,19 +1,18 @@
-const search = () => {
+const search = async () => {
 	const searchInput = document.getElementById("search-input").value;
 	const url = `https://api.lyrics.ovh/suggest/: + ${searchInput}`;
-	fetch(url)
-		.then(res => res.json())
-		.then(data => {
-			displaySongs(data.data);
-		})
+	const res = await fetch(url);
+	const data = await res.json();
+	displaySongs(data.data);
 }
 const displaySongs = songs => {
 	console.log(songs);
 	const contentBody = document.getElementById("contents");
-
+	contentBody.innerHTML = "";
+	document.getElementById("lyrics").innerHTML = '';
 	songs.forEach(song => {
 		const songDiv = document.createElement("songDiv");
-		songDiv.className = "single-result row align-items-center my-3 p-3";
+		songDiv.classList = "single-result row align-items-center my-3 p-3";
 		songDiv.innerHTML = `
 			<div class="col-md-9">
 				<h3 class="lyrics-name">${song.title}</h3>
@@ -23,7 +22,7 @@ const displaySongs = songs => {
 				</audio>
 			</div>
 			<div class="col-md-3 text-md-right text-center">
-				<button class="btn btn-success">Get Lyrics</button>
+				<button onclick="displayLyrics('${song.artist.name}', '${song.title}')" class="btn btn-success">Get Lyrics</button>
 			</div>
 		`;
 		contentBody.appendChild(songDiv);
@@ -32,4 +31,15 @@ const displaySongs = songs => {
 
 }
 
-
+const displayLyrics = async(artist, title) => {
+	document.getElementById("contents").innerHTML = '';
+	const url = `https://api.lyrics.ovh/v1/${artist}/${title}`;
+	console.log(url)
+	const res = await fetch(url);
+	const data = await res.json();
+	const lyricsDiv = document.getElementById("lyrics");
+	lyricsDiv.innerHTML = `
+		<p>${data.lyrics}</p>
+		
+	`
+}
